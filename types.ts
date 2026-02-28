@@ -3,7 +3,8 @@ export enum ViewState {
   SCANNER = 'SCANNER',
   APPEAL = 'APPEAL',
   REVIEWS = 'REVIEWS',
-  VERIFICATION = 'VERIFICATION'
+  VERIFICATION = 'VERIFICATION',
+  SETTINGS = 'SETTINGS'
 }
 
 export enum SuspensionReason {

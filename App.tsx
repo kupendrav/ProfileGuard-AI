@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ViewState } from './types';
 import { Dashboard } from './components/Dashboard';
 import { ComplianceScanner } from './components/ComplianceScanner';
 import { AppealGenerator } from './components/AppealGenerator';
 import { ReviewAuditor } from './components/ReviewAuditor';
 import { VerificationHelper } from './components/VerificationHelper';
-import { LayoutDashboard, Stethoscope, FileSignature, MessageSquareWarning, ShieldCheck, Menu, X, Wrench } from 'lucide-react';
+import { ApiKeySettings } from './components/ApiKeySettings';
+import { getApiKey } from './services/geminiService';
+import { LayoutDashboard, Stethoscope, FileSignature, MessageSquareWarning, ShieldCheck, Menu, X, Wrench, Settings, AlertTriangle } from 'lucide-react';
 
 export default function App() {
   const [view, setView] = useState<ViewState>(ViewState.DASHBOARD);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(!!getApiKey());
+
+  const checkApiKey = useCallback(() => {
+    setHasApiKey(!!getApiKey());
+  }, []);
 
   const renderView = () => {
     switch (view) {
@@ -18,6 +25,7 @@ export default function App() {
       case ViewState.APPEAL: return <AppealGenerator />;
       case ViewState.REVIEWS: return <ReviewAuditor />;
       case ViewState.VERIFICATION: return <VerificationHelper />;
+      case ViewState.SETTINGS: return <ApiKeySettings onKeyChange={checkApiKey} />;
       default: return <Dashboard />;
     }
   };
@@ -64,6 +72,7 @@ export default function App() {
             <NavItem target={ViewState.VERIFICATION} icon={Wrench} label="Verification Fix" />
             <NavItem target={ViewState.REVIEWS} icon={MessageSquareWarning} label="Review Audit" />
             <NavItem target={ViewState.APPEAL} icon={FileSignature} label="Appeal Wizard" />
+            <NavItem target={ViewState.SETTINGS} icon={Settings} label="Settings" />
           </nav>
 
           <div className="mt-auto pt-6 border-t border-slate-800">
@@ -101,6 +110,7 @@ export default function App() {
                 {view === ViewState.APPEAL && 'Reinstatement Appeal Generator'}
                 {view === ViewState.REVIEWS && 'Review Manipulation Audit'}
                 {view === ViewState.VERIFICATION && 'Verification Troubleshooter'}
+                {view === ViewState.SETTINGS && 'Settings'}
               </h2>
               <p className="text-slate-500 mt-1">
                 {view === ViewState.DASHBOARD && 'Monitor global trends and your account health status.'}
@@ -108,8 +118,18 @@ export default function App() {
                 {view === ViewState.APPEAL && 'Generate professional, policy-compliant appeal letters.'}
                 {view === ViewState.REVIEWS && 'Identify fake or spam reviews that trigger algorithm flags.'}
                 {view === ViewState.VERIFICATION && 'Resolve technical verification bugs, death loops, and rejections.'}
+                {view === ViewState.SETTINGS && 'Configure your API key and application settings.'}
               </p>
             </div>
+            {!hasApiKey && view !== ViewState.SETTINGS && (
+              <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:bg-amber-100 transition-colors" onClick={() => setView(ViewState.SETTINGS)}>
+                <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">API Key Required</p>
+                  <p className="text-xs text-amber-600">Click here to add your Gemini API key in Settings to use AI features.</p>
+                </div>
+              </div>
+            )}
             {renderView()}
           </div>
         </div>

@@ -1,11 +1,27 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { BusinessProfile, ScanResult, ReviewAuditResult, SuspensionReason, VerificationIssueType, VerificationAdvice } from "../types";
 
+// API key storage key
+const API_KEY_STORAGE_KEY = 'profileguard_gemini_api_key';
+
+// Get/set API key from localStorage
+export const getApiKey = (): string | null => {
+  return localStorage.getItem(API_KEY_STORAGE_KEY);
+};
+
+export const setApiKey = (key: string): void => {
+  localStorage.setItem(API_KEY_STORAGE_KEY, key);
+};
+
+export const clearApiKey = (): void => {
+  localStorage.removeItem(API_KEY_STORAGE_KEY);
+};
+
 // Helper to get AI instance safely
 const getAI = () => {
-  const apiKey = process.env.API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) {
-    throw new Error("API Key not found");
+    throw new Error("API Key not configured. Please add your Gemini API key in Settings.");
   }
   return new GoogleGenAI({ apiKey });
 };
